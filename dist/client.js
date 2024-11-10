@@ -14,6 +14,7 @@ const pauseButton = document.getElementById('pauseButton');
 const resumeButton = document.getElementById('resumeButton');
 const displayText = document.getElementById('displayText');
 const textInput = document.getElementById('textInput');
+const audioElement = document.getElementById("audioElement");
 // Get the singleton TTS instance
 const tts = TTS.getInstance();
 //initialize buttons
@@ -23,7 +24,6 @@ resumeButton.disabled = true;
 tts.onTranscriptUpdate = (transcript, speechStartMs) => __awaiter(void 0, void 0, void 0, function* () {
     // Update the displayed text in the DOM
     displayText.textContent = tts.displayedTranscript;
-    // Optionally, you could also log the speech start time, if you need it
     console.log(`Current Transcript: ${transcript}`);
     console.log(`Speech started at: ${speechStartMs} ms`);
 });
@@ -47,8 +47,9 @@ startButton.addEventListener('click', () => __awaiter(void 0, void 0, void 0, fu
         alert("Please enter some text.");
         return;
     }
-    // Call the TTS function (assuming tts.speak is defined elsewhere in your code)
-    yield tts.speak(textToSpeak);
+    let audioBase64 = yield tts.speak(textToSpeak);
+    audioElement.src = `data:audio/mp3;base64,${audioBase64}`;
+    audioElement.play();
     // Enable/Disable buttons based on speech state
     startButton.disabled = true;
     pauseButton.disabled = false;
@@ -57,6 +58,7 @@ startButton.addEventListener('click', () => __awaiter(void 0, void 0, void 0, fu
 // Pause the speech when the "Pause" button is clicked
 pauseButton.addEventListener('click', () => {
     tts.pauseSpeaking();
+    audioElement.pause();
     // Enable the "Resume" button and disable the "Pause" button
     startButton.disabled = true;
     pauseButton.disabled = true;
@@ -65,6 +67,7 @@ pauseButton.addEventListener('click', () => {
 // Resume the speech when the "Resume" button is clicked
 resumeButton.addEventListener('click', () => {
     tts.resumeSpeaking();
+    audioElement.play();
     startButton.disabled = true;
     pauseButton.disabled = false;
     resumeButton.disabled = true;

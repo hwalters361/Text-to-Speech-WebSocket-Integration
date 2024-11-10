@@ -27,6 +27,6 @@
       "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
     },
     "include": ["./*.ts"],
-    "exclude": ["node_modules", "dist", "TTS2.ts"]
+    "exclude": ["node_modules", "dist"]
   }
   

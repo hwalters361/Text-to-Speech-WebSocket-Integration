@@ -26,8 +26,25 @@ export class TTS {
         return TTS.instance;
     }
 
+    private getCharacterDurations(data: { alignment: { characters: string[], character_start_times_seconds: number[], character_end_times_seconds: number[] } }) {
+        // Ensure that the start and end times arrays have the same length
+        if (data.alignment.character_start_times_seconds.length !== data.alignment.character_end_times_seconds.length) {
+            throw new Error("Start and end times arrays must have the same length");
+        }
+      
+        // Calculate the duration for each character (in seconds)
+        const durationsInMs = data.alignment.character_start_times_seconds.map((startTime, index) => {
+          const endTime = data.alignment.character_end_times_seconds[index];
+          return (endTime - startTime) * 1000; // Duration in seconds
+        });
+      
+        return durationsInMs; 
+    }
+
+    
+
     // Public method to fetch alignment data from the API and start speaking
-    public async speak(textInput: string): Promise<void> {
+    public async speak(textInput: string): Promise<string> {
         try {
             // Fetch alignment data from the API
             const response = await fetch('/api/tts-alignment', {
@@ -39,8 +56,10 @@ export class TTS {
             const data = await response.json();
 
             if (data && data.alignment) {
-                this.alignmentData = data.alignment;
-                console.log(data.alignment);
+
+                this.alignmentData.chars = data.alignment.characters;
+                this.alignmentData.charDurationsMs = this.getCharacterDurations(data);
+                
                 this.charPointer = 0;
     
                 this.displayedTranscript = "";
@@ -57,11 +76,14 @@ export class TTS {
                 
 
                 this.displayNextCharacter();
+                return data.audio_base64;
             } else {
                 alert('Failed to fetch alignment data.');
+                return '';
             }
         } catch (error) {
             console.error('Error fetching alignment data:', error);
+            return '';
         }
     }
 
@@ -70,6 +92,8 @@ export class TTS {
         if (this.isPaused || this.charPointer >= this.alignmentData.chars.length || !this.alignmentData) {
             return; // Stop if paused or end of data
         }
+
+        
 
         let curChar = this.alignmentData.chars[this.charPointer];
         let curDuration = this.alignmentData.charDurationsMs[this.charPointer];

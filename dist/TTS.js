@@ -25,6 +25,18 @@ export class TTS {
         }
         return TTS.instance;
     }
+    getCharacterDurations(data) {
+        // Ensure that the start and end times arrays have the same length
+        if (data.alignment.character_start_times_seconds.length !== data.alignment.character_end_times_seconds.length) {
+            throw new Error("Start and end times arrays must have the same length");
+        }
+        // Calculate the duration for each character (in seconds)
+        const durationsInMs = data.alignment.character_start_times_seconds.map((startTime, index) => {
+            const endTime = data.alignment.character_end_times_seconds[index];
+            return (endTime - startTime) * 1000; // Duration in seconds
+        });
+        return durationsInMs;
+    }
     // Public method to fetch alignment data from the API and start speaking
     speak(textInput) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -37,8 +49,8 @@ export class TTS {
                 });
                 const data = yield response.json();
                 if (data && data.alignment) {
-                    this.alignmentData = data.alignment;
-                    console.log(data.alignment);
+                    this.alignmentData.chars = data.alignment.characters;
+                    this.alignmentData.charDurationsMs = this.getCharacterDurations(data);
                     this.charPointer = 0;
                     this.displayedTranscript = "";
                     if (this.onTranscriptUpdate) {
@@ -51,13 +63,16 @@ export class TTS {
                     this.charPointer = 0;
                     this.displayedTranscript = "";
                     this.displayNextCharacter();
+                    return data.audio_base64;
                 }
                 else {
                     alert('Failed to fetch alignment data.');
+                    return '';
                 }
             }
             catch (error) {
                 console.error('Error fetching alignment data:', error);
+                return '';
             }
         });
     }

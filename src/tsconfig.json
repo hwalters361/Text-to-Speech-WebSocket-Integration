@@ -26,6 +26,6 @@
     /* Completeness */
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
   },
-  "include": ["./**/*.ts", "./*.ts"],
+  "include": ["./**/*.ts", "./*.ts", "constants.ts"],
   "exclude": ["node_modules", "dist"]
 }

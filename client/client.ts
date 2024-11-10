@@ -6,6 +6,7 @@ const pauseButton = document.getElementById('pauseButton') as HTMLButtonElement;
 const resumeButton = document.getElementById('resumeButton') as HTMLButtonElement;
 const displayText = document.getElementById('displayText') as HTMLDivElement;
 const textInput = document.getElementById('textInput') as HTMLTextAreaElement;
+const audioElement = document.getElementById("audioElement") as HTMLAudioElement;
 
 
 // Get the singleton TTS instance
@@ -19,7 +20,6 @@ tts.onTranscriptUpdate = async (transcript: string, speechStartMs: number) => {
   // Update the displayed text in the DOM
   displayText.textContent = tts.displayedTranscript;
 
-  // Optionally, you could also log the speech start time, if you need it
   console.log(`Current Transcript: ${transcript}`);
   console.log(`Speech started at: ${speechStartMs} ms`);
 };
@@ -48,8 +48,10 @@ startButton.addEventListener('click', async () => {
     return;
   }
 
-  // Call the TTS function (assuming tts.speak is defined elsewhere in your code)
-  await tts.speak(textToSpeak);
+  let audioBase64 = await tts.speak(textToSpeak);
+  audioElement.src = `data:audio/mp3;base64,${audioBase64}`;
+  audioElement.play();
+
 
   // Enable/Disable buttons based on speech state
   startButton.disabled = true;
@@ -60,6 +62,8 @@ startButton.addEventListener('click', async () => {
 // Pause the speech when the "Pause" button is clicked
 pauseButton.addEventListener('click', () => {
   tts.pauseSpeaking();
+
+  audioElement.pause();
   
   // Enable the "Resume" button and disable the "Pause" button
   startButton.disabled = true;
@@ -70,6 +74,8 @@ pauseButton.addEventListener('click', () => {
 // Resume the speech when the "Resume" button is clicked
 resumeButton.addEventListener('click', () => {
   tts.resumeSpeaking();
+
+  audioElement.play();
 
   startButton.disabled = true;
   pauseButton.disabled = false;
