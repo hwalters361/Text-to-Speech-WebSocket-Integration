@@ -3,21 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Node.js + TypeScript App</title>
-  <link rel="stylesheet" href="/styles.css">
+  <title>Text to Speech Playback</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="http://code.jquery.com/jquery-1.8.0.js"></script>
 </head>
 <body>
-  <h1>Search Posts</h1>
-  <!-- Form for user input -->
-  <form id="searchForm">
-    <input type="text" id="searchInput" name="search" placeholder="Search posts by title">
-    <button type="submit">Search</button>
-  </form>
-
-  <div id="postList">
-    <!-- Posts will be dynamically loaded here -->
+  <h1>Text to Speech with Character Timing</h1>
+  
+  <!-- Text input and control buttons -->
+  <div>
+    <textarea id="textInput" placeholder="Enter text here"></textarea>
+    <button id="resumeButton" disabled>Resume</button>
+    <button id="startButton">Start Speaking</button>
+    <button id="pauseButton" disabled>Pause</button>
+    
   </div>
+  
+  <!-- Displaying the current character -->
+  <div id="displayText"></div>
 
-  <script src="/scripts.js"></script>
+  
+  <script type="module" src="client.js"></script>
+  <script type="module" src="TTS.js"></script> 
+  
 </body>
 </html>

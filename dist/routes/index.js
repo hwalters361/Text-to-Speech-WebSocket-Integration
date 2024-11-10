@@ -12,17 +12,29 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
+// import express from 'express';
+const express_1 = __importDefault(require("express")); // Import Request and Response types
 const apiController_1 = require("../controllers/apiController");
 const router = express_1.default.Router();
+// Endpoint to get the TTS alignment data for a given text
 // Serve the static HTML page
 router.get('/', (req, res) => {
     res.sendFile('index.html', { root: 'public' });
 });
-// API endpoint to get posts based on the search term
-router.get('/api/posts', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const searchTerm = req.query.search || ''; // Default to an empty string
-    const posts = yield (0, apiController_1.getDataFromAPI)(searchTerm);
-    res.json(posts); // Send posts as a JSON response
+router.post('/api/tts-alignment', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("REQUEST");
+    console.log(req.body);
+    if (!req.body) {
+        res.status(400).json({ error: 'Could not process Request' });
+    }
+    const { text } = req.body;
+    if (!text) {
+        res.status(400).json({ error: 'Text is required' });
+    }
+    const alignmentData = yield (0, apiController_1.getTextToSpeechAlignment)(text);
+    if (!alignmentData) {
+        res.status(500).json({ error: 'Failed to get TTS alignment data' });
+    }
+    res.json(alignmentData);
 }));
 exports.default = router;
