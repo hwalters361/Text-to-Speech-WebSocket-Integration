@@ -37,7 +37,6 @@ const getTextToSpeechAlignment = (inputText) => __awaiter(void 0, void 0, void 0
             throw new Error(`Failed to fetch: ${response.statusText}`);
         }
         const returnJson = yield response.json();
-        console.log(returnJson);
         return returnJson;
     }
     catch (error) {

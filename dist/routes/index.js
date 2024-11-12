@@ -22,8 +22,6 @@ router.get('/', (req, res) => {
     res.sendFile('index.html', { root: 'public' });
 });
 router.post('/api/tts-alignment', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("REQUEST");
-    console.log(req.body);
     if (!req.body) {
         res.status(400).json({ error: 'Could not process Request' });
     }

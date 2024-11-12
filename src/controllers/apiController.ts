@@ -29,7 +29,6 @@ export const getTextToSpeechAlignment = async (inputText: string) => {
     }
 
     const returnJson = await response.json();
-    console.log(returnJson);
     return returnJson;
   } catch (error) {
     console.error('Error fetching TTS alignment (in apiController function):', error);

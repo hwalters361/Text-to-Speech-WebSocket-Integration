@@ -5,10 +5,10 @@ import router from './routes/index';
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middleware to parse JSON bodies
-app.use(express.json());  // <-- This is the key middleware
+// Middleware to parse JSON
+app.use(express.json());
 
-// Serve static files like HTML, CSS, and JS
+// Serve static files in public and dist
 app.use(express.static(path.join(__dirname, '../public')));
 app.use(express.static(path.join(__dirname, '../dist')));
 

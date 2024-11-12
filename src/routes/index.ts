@@ -1,5 +1,4 @@
-// import express from 'express';
-import express, { Request, Response } from 'express'; // Import Request and Response types
+import express, { Request, Response } from 'express'; 
 import { getTextToSpeechAlignment } from '../controllers/apiController';
 
 const router = express.Router();
@@ -12,8 +11,6 @@ router.get('/', (req, res) => {
 });
 
 router.post('/api/tts-alignment', async (req, res) => {
-  console.log("REQUEST");
-  console.log(req.body);
 
   if (!req.body) {
     res.status(400).json({ error: 'Could not process Request'});

@@ -16,7 +16,7 @@ describe('Express app', () => {
     expect(response.header['content-type']).toMatch(/html/); // Ensure it's an HTML file
   });
 
-  // test is api responds with something (haven't connected api for demo yet)
+  // test is api responds with something (should replace this with a mock endpoint.)
   test('POST / should parse JSON body', async () => {
     const response = await request(app)
       .post('/')
