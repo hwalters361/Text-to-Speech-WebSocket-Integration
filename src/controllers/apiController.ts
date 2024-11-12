@@ -1,4 +1,8 @@
-import { API_KEY } from '../constants';
+import * as dotenv from "dotenv";
+
+dotenv.config();
+const API_KEY = process.env.ELEVENLABS_API_KEY;
+
 
 export const getTextToSpeechAlignment = async (inputText: string) => {
   const mytext: string = await inputText;

@@ -2,24 +2,58 @@ export class TTS {
     private static instance: TTS;
 
     // Internal state
+
+    /**
+     * @description Will be true if transcript playback has begun or is paused.
+     */
     private isSpeaking: boolean = false;
+    /**
+     * @description If nonnull, audio will be played from this element. 
+     */
     private audioElement: HTMLAudioElement | null = null;
+    /**
+     * @description The transcript that should be displayed, timed to the audio or to the character pause definition
+     */
     private displayedTranscript: string = "";
+    /**
+     * @description Whether the transcript playback is paused or not. Can only be true if isSpeaking is true.
+     */
     private isPaused: boolean = false;
-    private charPointer: number = 0;  // Tracks where we are in the alignment data
+    /**
+
+     * @description The index in the array of characters that will be displayed next.
+     */
+    private charPointer: number = 0;
+    /**
+     * @description Queue of transcripts to be played after the current one
+     */
     private transcriptQueue: string[] = [];
 
+    /**
+     * @description True if the current transcript is being skipped.
+     */
     private skipping: boolean = false;
 
+    /**
+     * @description Controls API calls. Will abort API call upon interruption (like a skip).
+     */
     private controller: AbortController | null = null;
     
-
+    /**
+     * @description The fetched alignment data. Will be empty lists if no data fetched yet.
+     */
     private alignmentData: { chars: string[]; charStartTimesMs: number[]; charDurationsMs: number[] } 
         = {chars: [], charStartTimesMs: [], charDurationsMs:[]};  // Holds the fetched alignment data
     private currentTimeout: NodeJS.Timeout | null = null; // Stores the timeout reference for pausing/resuming
     
-    // public abstract methods
+    /**
+     * @description Abstract method that runs every time the transcript updates
+     */
     public onTranscriptUpdate?: (transcript: string, speechStartMs: number) => Promise<void>;
+
+    /**
+     * @description Abstract method that runs every time the transcript ends
+     */
     public onTranscriptEnd?: () => Promise<void>;
 
     // Private constructor to prevent instantiation
@@ -37,6 +71,10 @@ export class TTS {
 
     public getIsSpeaking(): boolean {
         return this.isSpeaking;
+    }
+
+    public getIsPaused(): boolean {
+        return this.isPaused;
     }
 
     public setAudioElement(audioElement: HTMLAudioElement): void {
@@ -87,7 +125,7 @@ export class TTS {
     }
     
     /**
-     * Begins updating the transcript, adding characters to the display. Audio will be played if the audioElement field is non-null.
+     * @description Begins updating the transcript, adding characters to the display. Audio will be played if the audioElement field is non-null.
      *
      * @param textInput The transcript that will be displayed
      */
@@ -138,28 +176,22 @@ export class TTS {
         } catch (error) {
             if (error instanceof Error) {
                 if (error.name == 'AbortError') {
-                    console.log("Fetch aborted");
+                    console.error("Fetch aborted");
                 }
-            } else {
-                console.error('Error fetching alignment data:', error);
             }
+            console.error('Error fetching alignment data:', error);
+            this.endTranscript();
         }
     }
 
     /**
-     * 
-     * Helper method for "speak". Continuously displays characters from the text
-     * passed to "speak" until there are none left.
-     * Begins updating the transcript, adding characters to the display. 
+     * @description Helper method for "speak". Continuously updates the transcript until there are no characters left
      * Audio will be played and characters will by synchronized to the audio if the audioElement 
      * field is non-null. Otherwise, characters will still display with proper ms gaps between them.
      */
     private displayNextCharacter(): void {
-        // console.log(`displaychar on ${this.alignmentData.chars}. charptr:${this.charPointer}`);
         // Stop if paused, not speaking, or the alignment data is empty (happens when )
         if (this.isPaused || !this.isSpeaking || this.skipping || this.alignmentData.chars.length == 0) {
-            console.log("cannot display character since no transcript is being played");
-            console.log(`paused:${this.isPaused} speaking:${this.isSpeaking} alignment:${this.skipping}`);
             return;
         }
         // end transcript if we have reached the end of the transcript
@@ -217,7 +249,7 @@ export class TTS {
     }
 
     /**
-     * Pauses the transcript playback.
+     * @description Pauses the transcript playback.
      */
     public pauseSpeaking(): void {
         if (this.isSpeaking && !this.isPaused) {
@@ -236,7 +268,7 @@ export class TTS {
     }
 
     /**
-     * Resumes the transcript playback after being paused. 
+     * @description Resumes the transcript playback after being paused. 
      */
     public resumeSpeaking(): void {
         if (this.isPaused && this.isSpeaking) {
@@ -252,7 +284,7 @@ export class TTS {
     }
 
     /**
-     * Skips to the end of the current transcript, goes to the next in the queue.
+     * @description Skips to the end of the current transcript, goes to the next in the queue.
      */
     public skipTranscript(): void {
         if (this.isSpeaking) {
@@ -273,7 +305,7 @@ export class TTS {
     }
 
     /**
-     * Starts transcript playback from the beginning.
+     * @description Starts transcript playback from the beginning.
      */
     public restartTranscript(): void {
         if (this.isSpeaking) {
@@ -295,11 +327,11 @@ export class TTS {
     }
 
     /**
-     * Cleans up the internal states of the TTS, plays the next transcript.
+     * @description Cleans up the internal states of the TTS, plays the next transcript.
      */
     private async endTranscript(): Promise<void> {
         if (this.isSpeaking) {
-            this.controller?.abort("Transcript Skipped, abort fetch");
+            this.controller?.abort("Ending Transcript, Abort fetch");
 
             console.log("End of speech");
 
@@ -325,5 +357,40 @@ export class TTS {
         } else {
             console.error("Cannot end transcript as no transcript is currently being spoken");
         }
+    }
+
+    /** 
+     * @description Cleanup method to destroy the instance
+     * */ 
+    public destroy(): void {
+        // Clear the audio element and stop audio playback
+        if (this.audioElement) {
+            this.audioElement.pause();
+            this.audioElement = null;
+        }
+
+        // Clear timeouts
+        if (this.currentTimeout) {
+            clearTimeout(this.currentTimeout);
+            this.currentTimeout = null;
+        }
+
+        // Abort any ongoing fetch request
+        if (this.controller) {
+            this.controller.abort();
+            this.controller = null;
+        }
+
+        // Clear internal state
+        this.isSpeaking = false;
+        this.isPaused = false;
+        this.charPointer = 0;
+        this.transcriptQueue = [];
+        this.displayedTranscript = '';
+        this.alignmentData = { chars: [], charStartTimesMs: [], charDurationsMs: [] };
+        this.skipping = false;
+
+        // Optionally reset the singleton instance
+        TTS.instance = new TTS;
     }
 }
