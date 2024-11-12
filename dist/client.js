@@ -17,22 +17,23 @@ const restartButton = document.getElementById('restartButton');
 const displayText = document.getElementById('displayText');
 const textInput = document.getElementById('textInput');
 const audioElement = document.getElementById("audioElement");
+const queueSize = document.getElementById("queueSize");
 // Get the singleton TTS instance
 const tts = TTS.getInstance();
 // set the audio element. Comment out to disable audio playback
 tts.setAudioElement(audioElement);
 tts.onTranscriptUpdate = (transcript, speechStartMs) => __awaiter(void 0, void 0, void 0, function* () {
     displayText.textContent = tts.getTranscriptDisplay();
-    pauseButton.disabled = false;
-    resumeButton.disabled = true;
-    skipButton.disabled = false;
-    restartButton.disabled = false;
+    //  pauseButton.disabled = false;
+    //  resumeButton.disabled = true;
+    //  skipButton.disabled = false;
+    //  restartButton.disabled = false;
 });
 tts.onTranscriptEnd = () => __awaiter(void 0, void 0, void 0, function* () {
-    pauseButton.disabled = true;
-    resumeButton.disabled = true;
-    skipButton.disabled = true;
-    restartButton.disabled = true;
+    //  pauseButton.disabled = true;
+    //  resumeButton.disabled = true;
+    //  skipButton.disabled = true;
+    //  restartButton.disabled = true;
     startButton.innerText = "Start Speaking";
 });
 // Button Event Listeners
@@ -50,18 +51,19 @@ startButton.addEventListener('click', () => __awaiter(void 0, void 0, void 0, fu
         return;
     }
     yield tts.speak(textToSpeak);
+    queueSize.innerText = `Transcript Playing, ${tts.getQueueSize()} transcripts are queued`;
 }));
 // Pause the speech when the "Pause" button is clicked
 pauseButton.addEventListener('click', () => {
     tts.pauseSpeaking();
-    pauseButton.disabled = true;
-    resumeButton.disabled = false;
+    //  pauseButton.disabled = true;
+    //  resumeButton.disabled = false;
 });
 // Resume the speech when the "Resume" button is clicked
 resumeButton.addEventListener('click', () => {
     tts.resumeSpeaking();
-    pauseButton.disabled = false;
-    resumeButton.disabled = true;
+    //  pauseButton.disabled = false;
+    //  resumeButton.disabled = true;
 });
 skipButton.addEventListener('click', () => {
     tts.skipTranscript();

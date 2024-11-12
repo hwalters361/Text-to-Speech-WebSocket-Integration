@@ -13,11 +13,15 @@
   <!-- Text input and control buttons -->
   <div>
     <textarea id="textInput" placeholder="Enter text here"></textarea>
-    <button id="resumeButton" disabled>Resume</button>
+<!--    <button id="resumeButton" disabled>Resume</button>-->
+    <button id="resumeButton" >Resume</button>
     <button id="startButton">Start Speaking</button>
-    <button id="pauseButton" disabled>Pause</button>
-    <button id="skipButton" disabled>Skip</button>
-    <button id="restartButton" disabled>Restart</button>
+<!--    <button id="pauseButton" disabled>Pause</button>-->
+    <button id="pauseButton" >Pause</button>
+<!--    <button id="skipButton" disabled>Skip</button>-->
+    <button id="skipButton" >Skip</button>
+<!--    <button id="restartButton" disabled>Restart</button>-->
+    <button id="restartButton" >Restart</button>
     <div class="audio-player">
     
     <audio id="audioElement"> <!-- controls > -->
@@ -25,7 +29,7 @@
     </audio>
     <br>    
   </div>
-  
+  <div id="queueSize"></div>
   <!-- Displaying the current character -->
   <div id="displayText"></div>
 

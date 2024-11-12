@@ -22,7 +22,7 @@ describe('Express app', () => {
         expect(response.status).toBe(200);
         expect(response.header['content-type']).toMatch(/html/); // Ensure it's an HTML file
     }));
-    // test is api responds with something (haven't connected api for demo yet)
+    // test is api responds with something (should replace this with a mock endpoint.)
     test('POST / should parse JSON body', () => __awaiter(void 0, void 0, void 0, function* () {
         const response = yield request(app)
             .post('/')

@@ -9,6 +9,7 @@ const restartButton = document.getElementById('restartButton') as HTMLButtonElem
 const displayText = document.getElementById('displayText') as HTMLDivElement;
 const textInput = document.getElementById('textInput') as HTMLTextAreaElement;
 const audioElement = document.getElementById("audioElement") as HTMLAudioElement;
+const queueSize = document.getElementById("queueSize") as HTMLAudioElement;
 
 
 // Get the singleton TTS instance
@@ -19,18 +20,20 @@ tts.setAudioElement(audioElement);
 
 tts.onTranscriptUpdate = async (transcript: string, speechStartMs: number) => {
   displayText.textContent = tts.getTranscriptDisplay();
-  pauseButton.disabled = false;
-  resumeButton.disabled = true;
-  skipButton.disabled = false;
-  restartButton.disabled = false;
+//  pauseButton.disabled = false;
+//  resumeButton.disabled = true;
+//  skipButton.disabled = false;
+//  restartButton.disabled = false;
 };
 
 tts.onTranscriptEnd = async () => {
-  pauseButton.disabled = true;
-  resumeButton.disabled = true;
-  skipButton.disabled = true;
-  restartButton.disabled = true;
+//  pauseButton.disabled = true;
+//  resumeButton.disabled = true;
+//  skipButton.disabled = true;
+//  restartButton.disabled = true;
   startButton.innerText = "Start Speaking";
+  queueSize.innerText = `${tts.getQueueSize()} transcript(s) are queued`;
+
 }
 
 // Button Event Listeners
@@ -51,24 +54,29 @@ startButton.addEventListener('click', async () => {
   }
 
   await tts.speak(textToSpeak);
+
+  queueSize.innerText = `${tts.getQueueSize()} transcript(s) are queued`;
+  startButton.innerText = "Queue another transcript";
+
 });
 
 // Pause the speech when the "Pause" button is clicked
 pauseButton.addEventListener('click', () => {
   tts.pauseSpeaking();
-  pauseButton.disabled = true;
-  resumeButton.disabled = false;
+//  pauseButton.disabled = true;
+//  resumeButton.disabled = false;
 });
 
 // Resume the speech when the "Resume" button is clicked
 resumeButton.addEventListener('click', () => {
   tts.resumeSpeaking();
-  pauseButton.disabled = false;
-  resumeButton.disabled = true;
+//  pauseButton.disabled = false;
+//  resumeButton.disabled = true;
 });
 
 skipButton.addEventListener('click', () => {
   tts.skipTranscript();
+  queueSize.innerText = `${tts.getQueueSize()} transcripts are queued`;
 });
 
 restartButton.addEventListener('click', () => {

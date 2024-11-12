@@ -8,6 +8,10 @@ export class TTS {
     private isPaused: boolean = false;
     private charPointer: number = 0;  // Tracks where we are in the alignment data
     private transcriptQueue: string[] = [];
+
+    private skipping: boolean = false;
+
+    private controller: AbortController | null = null;
     
 
     private alignmentData: { chars: string[]; charStartTimesMs: number[]; charDurationsMs: number[] } 
@@ -89,18 +93,24 @@ export class TTS {
      */
     public async speak(textInput: string): Promise<void> {
         if (this.isSpeaking) {
+            console.log("Already speaking, pushing transcript to queue");
             this.transcriptQueue.push(textInput);
             return;
         } else {
             this.isSpeaking = true;
         }
-        
+
         try {
+            // Create new AbortController for fetch cancellation (in case skip occurs while currently fetching alignment data)
+            this.controller = new AbortController();
+            const signal:AbortSignal = this.controller.signal;
+
             // Fetch alignment data from the API
             const response = await fetch('/api/tts-alignment', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ text: textInput }),
+                signal: signal
             });
 
             const data = await response.json();
@@ -119,7 +129,6 @@ export class TTS {
           
                 this.charPointer = 0;
                 this.displayedTranscript = "";
-                this.isPaused = false;
 
                 this.displayNextCharacter();
                 
@@ -127,7 +136,13 @@ export class TTS {
                 console.error('Failed to fetch alignment data');
             }
         } catch (error) {
-            console.error('Error fetching alignment data:', error);
+            if (error instanceof Error) {
+                if (error.name == 'AbortError') {
+                    console.log("Fetch aborted");
+                }
+            } else {
+                console.error('Error fetching alignment data:', error);
+            }
         }
     }
 
@@ -140,11 +155,14 @@ export class TTS {
      * field is non-null. Otherwise, characters will still display with proper ms gaps between them.
      */
     private displayNextCharacter(): void {
-        // Stop if paused or end of data
-        if (this.isPaused || !this.isSpeaking || !this.alignmentData) {
-            return; 
+        // console.log(`displaychar on ${this.alignmentData.chars}. charptr:${this.charPointer}`);
+        // Stop if paused, not speaking, or the alignment data is empty (happens when )
+        if (this.isPaused || !this.isSpeaking || this.skipping || this.alignmentData.chars.length == 0) {
+            console.log("cannot display character since no transcript is being played");
+            console.log(`paused:${this.isPaused} speaking:${this.isSpeaking} alignment:${this.skipping}`);
+            return;
         }
-
+        // end transcript if we have reached the end of the transcript
         if (this.charPointer >= this.alignmentData.chars.length) {
             this.endTranscript();
             return;
@@ -210,6 +228,10 @@ export class TTS {
                 clearTimeout(this.currentTimeout);  // Stop the ongoing timeout
             }
             console.log('Speech paused');
+        } else {
+            if (!this.isSpeaking) {
+                console.error("Cannot pause transcript playback while no transcript is currently being spoken");
+            }
         }
     }
 
@@ -217,12 +239,14 @@ export class TTS {
      * Resumes the transcript playback after being paused. 
      */
     public resumeSpeaking(): void {
-        if (this.isPaused) {
+        if (this.isPaused && this.isSpeaking) {
             this.audioElement?.play();
 
             this.isPaused = false;
             console.log('Speech resumed');
             this.displayNextCharacter();  // Resume displaying the next character
+        } else {
+            console.error("Cannot resume transcript playback while no transcript is currently being spoken");
         }
         
     }
@@ -231,9 +255,21 @@ export class TTS {
      * Skips to the end of the current transcript, goes to the next in the queue.
      */
     public skipTranscript(): void {
-        console.log('Speech skipped');
-        this.audioElement?.pause();
-        this.endTranscript();
+        if (this.isSpeaking) {
+            this.skipping = true;
+            console.log('Speech skipped');
+
+            if (this.currentTimeout) {
+                clearTimeout(this.currentTimeout);
+                this.currentTimeout = null;  // Reset the currentTimeout to null after clearing it
+            }
+            
+            this.endTranscript();
+
+            this.skipping = false;
+        } else {
+            console.error("Cannot skip transcript playback as no transcript is currently being spoken");
+        }
     }
 
     /**
@@ -253,34 +289,41 @@ export class TTS {
             }
             
             this.displayNextCharacter();
+        } else {
+            console.error("Cannot restart transcript as no transcript is currently being spoken");
         }
     }
 
     /**
      * Cleans up the internal states of the TTS, plays the next transcript.
      */
-    private endTranscript(): void {
-        console.log("End of speech");
-        this.isSpeaking = false;
-        this.isPaused = false;
-        this.charPointer = 0;  // Tracks where we are in the alignment data
-        
-        this.alignmentData = {chars: [], charStartTimesMs: [], charDurationsMs:[]};
-        this.currentTimeout = null; // Stores the timeout reference for pausing/resuming
-        this.displayedTranscript = "";
+    private async endTranscript(): Promise<void> {
+        if (this.isSpeaking) {
+            this.controller?.abort("Transcript Skipped, abort fetch");
 
-        if (this.audioElement){
-            this.audioElement.src = "";
-            this.audioElement.load();
-        }
+            console.log("End of speech");
 
-        if (this.onTranscriptEnd) {
-            this.onTranscriptEnd();
-        }
+            // set internal state back to initial state
+            this.isSpeaking = false;
+            this.isPaused = false;
+            this.charPointer = 0;  // Tracks where we are in the alignment data
+            this.alignmentData = {chars: [], charStartTimesMs: [], charDurationsMs:[]};
+            this.currentTimeout = null; // Stores the timeout reference for pausing/resuming
+            this.displayedTranscript = "";
+            // if audio is playing, pause it.
+            this.audioElement?.pause();
 
-        const nextTranscript = this.transcriptQueue.shift();
-        if (nextTranscript){
-            this.speak(nextTranscript);
+            if (this.onTranscriptEnd) {
+                this.onTranscriptEnd();
+            }
+            // queue the next transcript
+            const nextTranscript = this.transcriptQueue.shift();
+            
+            if (nextTranscript){
+                await this.speak(nextTranscript);
+            }
+        } else {
+            console.error("Cannot end transcript as no transcript is currently being spoken");
         }
     }
 }

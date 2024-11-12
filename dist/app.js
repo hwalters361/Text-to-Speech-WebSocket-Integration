@@ -8,9 +8,9 @@ const path_1 = __importDefault(require("path"));
 const index_1 = __importDefault(require("./routes/index"));
 const app = (0, express_1.default)();
 const port = process.env.PORT || 3000;
-// Middleware to parse JSON bodies
-app.use(express_1.default.json()); // <-- This is the key middleware
-// Serve static files like HTML, CSS, and JS
+// Middleware to parse JSON
+app.use(express_1.default.json());
+// Serve static files in public and dist
 app.use(express_1.default.static(path_1.default.join(__dirname, '../public')));
 app.use(express_1.default.static(path_1.default.join(__dirname, '../dist')));
 // Use the routes
