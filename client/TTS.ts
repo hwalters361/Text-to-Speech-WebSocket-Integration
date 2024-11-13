@@ -288,6 +288,10 @@ export class TTS {
      */
     public skipTranscript(): void {
         if (this.isSpeaking) {
+            this.displayedTranscript = "";
+            if(this.onTranscriptUpdate) {
+                this.onTranscriptUpdate(this.displayedTranscript, 0);
+            }
             this.skipping = true;
             console.log('Speech skipped');
 
@@ -343,16 +347,18 @@ export class TTS {
             this.currentTimeout = null; // Stores the timeout reference for pausing/resuming
             this.displayedTranscript = "";
             // if audio is playing, pause it.
-            this.audioElement?.pause();
-
-            if (this.onTranscriptEnd) {
-                this.onTranscriptEnd();
+            if (this.skipping) {
+                this.audioElement?.pause();
             }
+
             // queue the next transcript
             const nextTranscript = this.transcriptQueue.shift();
             
             if (nextTranscript){
                 await this.speak(nextTranscript);
+            }
+            if (this.onTranscriptEnd) {
+                this.onTranscriptEnd();
             }
         } else {
             console.error("Cannot end transcript as no transcript is currently being spoken");

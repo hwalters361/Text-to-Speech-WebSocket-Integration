@@ -1,4 +1,27 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -10,7 +33,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getTextToSpeechAlignment = void 0;
-const constants_1 = require("../constants");
+const dotenv = __importStar(require("dotenv"));
+dotenv.config();
+const API_KEY = "sk_4deed16677723216d1eee2f6efed254bfbef2e1ea0b0f77c";
 const getTextToSpeechAlignment = (inputText) => __awaiter(void 0, void 0, void 0, function* () {
     const mytext = yield inputText;
     const voice_id = "21m00Tcm4TlvDq8ikWAM"; // Rachel
@@ -24,7 +49,7 @@ const getTextToSpeechAlignment = (inputText) => __awaiter(void 0, void 0, void 0
     });
     const headers = {
         "Content-Type": "application/json",
-        "xi-api-key": constants_1.API_KEY,
+        "xi-api-key": API_KEY,
     };
     const url = `https://api.elevenlabs.io/v1/text-to-speech/${voice_id}/with-timestamps`;
     try {

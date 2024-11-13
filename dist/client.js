@@ -24,17 +24,19 @@ const tts = TTS.getInstance();
 tts.setAudioElement(audioElement);
 tts.onTranscriptUpdate = (transcript, speechStartMs) => __awaiter(void 0, void 0, void 0, function* () {
     displayText.textContent = tts.getTranscriptDisplay();
-    //  pauseButton.disabled = false;
-    //  resumeButton.disabled = true;
-    //  skipButton.disabled = false;
-    //  restartButton.disabled = false;
+    queueSize.innerText = `${tts.getQueueSize()} transcript(s) are queued`;
+    pauseButton.disabled = false;
+    resumeButton.disabled = true;
+    restartButton.disabled = false;
 });
 tts.onTranscriptEnd = () => __awaiter(void 0, void 0, void 0, function* () {
-    //  pauseButton.disabled = true;
-    //  resumeButton.disabled = true;
-    //  skipButton.disabled = true;
-    //  restartButton.disabled = true;
-    startButton.innerText = "Start Speaking";
+    pauseButton.disabled = true;
+    resumeButton.disabled = true;
+    restartButton.disabled = true;
+    queueSize.innerText = `${tts.getQueueSize()} transcript(s) are queued`;
+    if (!tts.getIsSpeaking()) {
+        queueSize.innerText = `All transcripts finished playback.`;
+    }
 });
 // Button Event Listeners
 // Start the speech when the "Start Speaking" button is clicked
@@ -45,28 +47,33 @@ startButton.addEventListener('click', () => __awaiter(void 0, void 0, void 0, fu
         return;
     }
     const textToSpeak = textInput.value;
+    skipButton.disabled = false;
     // Check if there is any text entered
     if (textToSpeak.trim() === '') {
         alert("Please enter some text.");
         return;
     }
     yield tts.speak(textToSpeak);
-    queueSize.innerText = `Transcript Playing, ${tts.getQueueSize()} transcripts are queued`;
+    queueSize.innerText = `${tts.getQueueSize()} transcript(s) are queued`;
 }));
 // Pause the speech when the "Pause" button is clicked
 pauseButton.addEventListener('click', () => {
     tts.pauseSpeaking();
-    //  pauseButton.disabled = true;
-    //  resumeButton.disabled = false;
+    pauseButton.disabled = true;
+    resumeButton.disabled = false;
 });
 // Resume the speech when the "Resume" button is clicked
 resumeButton.addEventListener('click', () => {
     tts.resumeSpeaking();
-    //  pauseButton.disabled = false;
-    //  resumeButton.disabled = true;
+    pauseButton.disabled = false;
+    resumeButton.disabled = true;
 });
 skipButton.addEventListener('click', () => {
     tts.skipTranscript();
+    queueSize.innerText = `${tts.getQueueSize()} transcript(s) are queued`;
+    if (!tts.getIsSpeaking()) {
+        queueSize.innerText = `All transcripts finished playback.`;
+    }
 });
 restartButton.addEventListener('click', () => {
     tts.restartTranscript();

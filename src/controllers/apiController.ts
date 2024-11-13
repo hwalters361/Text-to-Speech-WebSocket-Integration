@@ -1,7 +1,11 @@
 import * as dotenv from "dotenv";
 
 dotenv.config();
-const API_KEY = process.env.ELEVENLABS_API_KEY;
+let api_key = "";
+if (process.env.ELEVENLABS_API_KEY) {
+  let api_key = process.env.ELEVENLABS_API_KEY;
+}
+
 
 
 export const getTextToSpeechAlignment = async (inputText: string) => {
@@ -17,7 +21,7 @@ export const getTextToSpeechAlignment = async (inputText: string) => {
   });
   const headers = {
     "Content-Type": "application/json",
-    "xi-api-key": API_KEY,
+    "xi-api-key": api_key,
   };
   const url = `https://api.elevenlabs.io/v1/text-to-speech/${voice_id}/with-timestamps`;
 
