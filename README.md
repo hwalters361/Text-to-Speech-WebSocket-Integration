@@ -6,8 +6,10 @@ Create a `.env` file in the root directory that contains your API key in the for
 ```
 ELEVENLABS_API_KEY= your_key_here
 ```
+You might have to compile the typescript after adding your API key.
+You can do this by going to `src` and running `npx tsc`, then going to the `client` directory and running `npx tsc` again. This should put the compiled javascript in the `dist` folder.
 
-Run `node dist/app.js` and open localhost port 3000.
+Run `node dist/app.js` from the root directory to launch the app and open localhost port 3000.
 
 ### Testing
 Uses jest. Run `npm test` from the root directory. 
