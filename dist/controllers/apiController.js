@@ -37,7 +37,7 @@ const dotenv = __importStar(require("dotenv"));
 dotenv.config();
 let api_key = "";
 if (process.env.ELEVENLABS_API_KEY) {
-    let api_key = process.env.ELEVENLABS_API_KEY;
+    api_key = process.env.ELEVENLABS_API_KEY;
 }
 const getTextToSpeechAlignment = (inputText) => __awaiter(void 0, void 0, void 0, function* () {
     const mytext = yield inputText;

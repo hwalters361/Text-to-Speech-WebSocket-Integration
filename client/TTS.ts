@@ -140,6 +140,7 @@ export class TTS {
 
         try {
             // Create new AbortController for fetch cancellation (in case skip occurs while currently fetching alignment data)
+            
             this.controller = new AbortController();
             const signal:AbortSignal = this.controller.signal;
 
@@ -288,6 +289,9 @@ export class TTS {
      */
     public skipTranscript(): void {
         if (this.isSpeaking) {
+            this.controller?.abort("Ending Transcript, Abort fetch");
+            this.controller = null;
+
             this.displayedTranscript = "";
             if(this.onTranscriptUpdate) {
                 this.onTranscriptUpdate(this.displayedTranscript, 0);
@@ -335,7 +339,6 @@ export class TTS {
      */
     private async endTranscript(): Promise<void> {
         if (this.isSpeaking) {
-            this.controller?.abort("Ending Transcript, Abort fetch");
 
             console.log("End of speech");
 

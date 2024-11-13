@@ -262,7 +262,10 @@ export class TTS {
      * @description Skips to the end of the current transcript, goes to the next in the queue.
      */
     skipTranscript() {
+        var _a;
         if (this.isSpeaking) {
+            (_a = this.controller) === null || _a === void 0 ? void 0 : _a.abort("Ending Transcript, Abort fetch");
+            this.controller = null;
             this.displayedTranscript = "";
             if (this.onTranscriptUpdate) {
                 this.onTranscriptUpdate(this.displayedTranscript, 0);
@@ -305,9 +308,8 @@ export class TTS {
      */
     endTranscript() {
         return __awaiter(this, void 0, void 0, function* () {
-            var _a, _b;
+            var _a;
             if (this.isSpeaking) {
-                (_a = this.controller) === null || _a === void 0 ? void 0 : _a.abort("Ending Transcript, Abort fetch");
                 console.log("End of speech");
                 // set internal state back to initial state
                 this.isSpeaking = false;
@@ -318,7 +320,7 @@ export class TTS {
                 this.displayedTranscript = "";
                 // if audio is playing, pause it.
                 if (this.skipping) {
-                    (_b = this.audioElement) === null || _b === void 0 ? void 0 : _b.pause();
+                    (_a = this.audioElement) === null || _a === void 0 ? void 0 : _a.pause();
                 }
                 // queue the next transcript
                 const nextTranscript = this.transcriptQueue.shift();
