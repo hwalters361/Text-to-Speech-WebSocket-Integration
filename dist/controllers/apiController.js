@@ -35,7 +35,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getTextToSpeechAlignment = void 0;
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
-const API_KEY = "sk_4deed16677723216d1eee2f6efed254bfbef2e1ea0b0f77c";
+let api_key = "";
+if (process.env.ELEVENLABS_API_KEY) {
+    let api_key = process.env.ELEVENLABS_API_KEY;
+}
 const getTextToSpeechAlignment = (inputText) => __awaiter(void 0, void 0, void 0, function* () {
     const mytext = yield inputText;
     const voice_id = "21m00Tcm4TlvDq8ikWAM"; // Rachel
@@ -49,7 +52,7 @@ const getTextToSpeechAlignment = (inputText) => __awaiter(void 0, void 0, void 0
     });
     const headers = {
         "Content-Type": "application/json",
-        "xi-api-key": API_KEY,
+        "xi-api-key": api_key,
     };
     const url = `https://api.elevenlabs.io/v1/text-to-speech/${voice_id}/with-timestamps`;
     try {

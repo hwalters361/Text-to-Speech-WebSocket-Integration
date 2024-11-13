@@ -3,7 +3,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 let api_key = "";
 if (process.env.ELEVENLABS_API_KEY) {
-  let api_key = process.env.ELEVENLABS_API_KEY;
+  api_key = process.env.ELEVENLABS_API_KEY;
 }
 
 
