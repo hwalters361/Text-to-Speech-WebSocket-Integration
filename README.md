@@ -16,7 +16,8 @@ Uses jest. Run `npm test` from the root directory.
 
 #### Decisions/Tradeoffs
 
-I used Express instead of WebSocket, and I did not see websocket was requested until I was so far deep in this project that I could no longer change it. I tried to stay true to the 10 hour limit but I definitely went over. One API call is made per transcript submitted.
+I used Express instead of websocket. One API call is made per transcript submitted. 
+In the future I'd like to change this to use websocket and keep an open channel of communciation.
 
 I only wrote tests for `TTS.ts`, although I tried to write tests for `app.ts` but was having issues with the supertest package, which is what I was using to test.
 
